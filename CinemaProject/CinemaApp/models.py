@@ -9,9 +9,9 @@ seleccion_estado_salas=[(1,'habilitada'),(2,'deshabilitada'),(3,'eliminada')]
 class Peliculas(models.Model):
     nombre=models.CharField(max_length=50)
     duracion=models.DurationField()
-    descripcion=models.CharField(max_length=200)
+    descripcion=models.CharField(max_length=300)
     detalle=models.CharField(max_length=100)
-    genero=models.CharField(max_length=20)
+    genero=models.CharField(max_length=50)
     clasificacion=models.CharField(max_length=20)
     estado=models.IntegerField(null=False,blank=False,choices=seleccion_estado,default=1)
     fechaComienzo=models.DateField()
