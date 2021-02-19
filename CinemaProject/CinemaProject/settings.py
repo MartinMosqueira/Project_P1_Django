@@ -55,7 +55,7 @@ ROOT_URLCONF = 'CinemaProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['/home/martin/Documentos/GitHub/Project_P1_Django/CinemaProject/CinemaApp/Templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
