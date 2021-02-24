@@ -19,6 +19,7 @@ from CinemaApp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('get/',views.get),
-    path('<str:nombre>/',views.get_pelicula)
+    path('pelicula/get/',views.get),
+    path('pelicula/<str:nombre>/',views.get_pelicula),
+    path('pelicula/<str:nombre>/<str:rangoI>/<str:rangoF>',views.get_pelicula_fecha)
 ]
