@@ -21,5 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('pelicula/get/',views.get),
     path('pelicula/<str:nombre>/',views.get_pelicula),
-    path('pelicula/<str:nombre>/<str:rangoI>/<str:rangoF>',views.get_pelicula_fecha)
+    path('pelicula/<str:nombre>/<str:rangoI>/<str:rangoF>',views.get_pelicula_fecha),
+    path('sala/get',views.get_salas),
+    path('sala/<str:nombre>',views.get_sala_nombre)
 ]

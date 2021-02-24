@@ -2,6 +2,7 @@ from django.shortcuts import render
 from CinemaApp.models import Peliculas, Salas, Proyeccion, Butacas
 from django.http import JsonResponse
 from datetime import datetime, timedelta
+
 # Create your views here.
 
 #ENDPOINTS PELICULAS
@@ -41,7 +42,7 @@ def get_pelicula(request,nombre):
 def get_pelicula_fecha(request,nombre,rangoI,rangoF):
     rangoI=datetime.strptime(rangoI, '%Y-%m-%d')
     rangoF=datetime.strptime(rangoF, '%Y-%m-%d')
-    
+
     lista_fechas = [rangoI + timedelta(days=d) for d in range((rangoF - rangoI).days + 1)]
     
     proyecciones=Proyeccion.objects.filter(pelicula__nombre__icontains=nombre)
@@ -55,3 +56,31 @@ def get_pelicula_fecha(request,nombre,rangoI,rangoF):
                 output.append(proyeccion_datos)
 
     return JsonResponse({'proyecciones':output})
+
+#ENDPOINTS SALAS
+
+def get_salas(request):
+    salas=Salas.objects.all()
+    output=[]
+    for sala in salas:
+        sala_datos={}
+        sala_datos['nombre']=sala.nombre
+        sala_datos['estado']=sala.estado
+        sala_datos['filas']=sala.filas
+        sala_datos['asientos']=sala.asientos
+        output.append(sala_datos)
+
+    return JsonResponse({'sala':output})
+
+def get_sala_nombre(request,nombre):
+    salas=Salas.objects.filter(nombre=nombre)
+    output=[]
+    for sala in salas:
+        sala_datos={}
+        sala_datos['nombre']=sala.nombre
+        sala_datos['estado']=sala.estado
+        sala_datos['filas']=sala.filas
+        sala_datos['asientos']=sala.asientos
+        output.append(sala_datos)
+
+    return JsonResponse({'sala':output})
