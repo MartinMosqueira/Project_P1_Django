@@ -52,12 +52,13 @@ def get_pelicula_fecha(request,nombre,rangoI,rangoF):
     proyecciones=Proyeccion.objects.filter(pelicula__nombre__icontains=nombre)
     output=[]
     for proyeccion in proyecciones:
-        for lista in lista_fechas:
-            proyeccion_datos={}
-            if lista.date() >= proyeccion.fechaInicio and lista.date() <= proyeccion.fechaFin:
-                proyeccion_datos['fecha']=lista.date()
-                proyeccion_datos['hora']=proyeccion.horaProyeccion
-                output.append(proyeccion_datos)
+        if proyeccion.estado == 1:
+            for lista in lista_fechas:
+                proyeccion_datos={}
+                if lista.date() >= proyeccion.fechaInicio and lista.date() <= proyeccion.fechaFin:
+                    proyeccion_datos['fecha']=lista.date()
+                    proyeccion_datos['hora']=proyeccion.horaProyeccion
+                    output.append(proyeccion_datos)
 
     return JsonResponse({'proyecciones':output})
 
@@ -140,13 +141,14 @@ def get_proyeccion_fecha(request,rangoI,rangoF):
     proyecciones=Proyeccion.objects.all()
     output=[]
     for proyeccion in proyecciones:
-        for lista in lista_fechas:
-            proyeccion_datos={}
-            if lista.date() >= proyeccion.fechaInicio and lista.date() <= proyeccion.fechaFin:
-                proyeccion_datos['sala']=proyeccion.sala.nombre
-                proyeccion_datos['pelicula']=proyeccion.pelicula.nombre
-                proyeccion_datos['fecha']=lista.date()
-                proyeccion_datos['hora']=proyeccion.horaProyeccion
-                output.append(proyeccion_datos)
-
+        if proyeccion.estado == 1:
+            for lista in lista_fechas:
+                proyeccion_datos={}
+                if lista.date() >= proyeccion.fechaInicio and lista.date() <= proyeccion.fechaFin:
+                    proyeccion_datos['sala']=proyeccion.sala.nombre
+                    proyeccion_datos['pelicula']=proyeccion.pelicula.nombre
+                    proyeccion_datos['fecha']=lista.date()
+                    proyeccion_datos['hora']=proyeccion.horaProyeccion
+                    output.append(proyeccion_datos)
+             
     return JsonResponse({'proyecciones':output})
