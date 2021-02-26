@@ -2,6 +2,10 @@ from django.shortcuts import render
 from CinemaApp.models import Peliculas, Salas, Proyeccion, Butacas
 from django.http import JsonResponse
 from datetime import datetime, timedelta
+from rest_framework.decorators import api_view
+from .serializers import SalasSerializer
+from rest_framework.response import Response
+from rest_framework import status
 
 # Create your views here.
 
@@ -64,6 +68,7 @@ def get_salas(request):
     output=[]
     for sala in salas:
         sala_datos={}
+        sala_datos['id']=sala.id
         sala_datos['nombre']=sala.nombre
         sala_datos['estado']=sala.estado
         sala_datos['filas']=sala.filas
@@ -77,6 +82,7 @@ def get_sala_nombre(request,nombre):
     output=[]
     for sala in salas:
         sala_datos={}
+        sala_datos['id']=sala.id
         sala_datos['nombre']=sala.nombre
         sala_datos['estado']=sala.estado
         sala_datos['filas']=sala.filas
@@ -84,3 +90,39 @@ def get_sala_nombre(request,nombre):
         output.append(sala_datos)
 
     return JsonResponse({'sala':output})
+
+@api_view(['GET','POST',])
+def sala_metodos_GP(request):
+    if request.method == 'GET':
+        salas=Salas.objects.all()
+        serializer = SalasSerializer(salas, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer=SalasSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT','DELETE',])
+def sala_metodos_PD(request,sala_id):
+    try:
+        salas = Salas.objects.get(id=sala_id)
+    except Salas.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'PUT':
+        serializer = SalasSerializer(salas, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        if salas.estado == 3:
+            salas.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response('ERROR: No se puede eliminar sala')
