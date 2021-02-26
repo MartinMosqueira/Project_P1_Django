@@ -24,5 +24,7 @@ urlpatterns = [
     path('pelicula/<str:nombre>/<str:rangoI>/<str:rangoF>',views.get_pelicula_fecha),
     path('sala/<str:nombre>',views.get_sala_nombre),
     path('salas/',views.sala_metodos_GP),
-    path('salas/<int:sala_id>',views.sala_metodos_PD)
+    path('salas/<int:sala_id>',views.sala_metodos_PD),
+    path('proyeccion/',views.get_proyecciones),
+    path('proyeccion/<str:rangoI>/<str:rangoF>',views.get_proyeccion_fecha),
 ]

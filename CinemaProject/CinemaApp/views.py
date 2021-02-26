@@ -63,20 +63,6 @@ def get_pelicula_fecha(request,nombre,rangoI,rangoF):
 
 #ENDPOINTS SALAS
 
-def get_salas(request):
-    salas=Salas.objects.all()
-    output=[]
-    for sala in salas:
-        sala_datos={}
-        sala_datos['id']=sala.id
-        sala_datos['nombre']=sala.nombre
-        sala_datos['estado']=sala.estado
-        sala_datos['filas']=sala.filas
-        sala_datos['asientos']=sala.asientos
-        output.append(sala_datos)
-
-    return JsonResponse({'sala':output})
-
 def get_sala_nombre(request,nombre):
     salas=Salas.objects.filter(nombre=nombre)
     output=[]
@@ -126,3 +112,41 @@ def sala_metodos_PD(request,sala_id):
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response('ERROR: No se puede eliminar sala')
+
+#ENDPOINTS PROYECCION
+
+def get_proyecciones(request):
+    proyecciones=Proyeccion.objects.all()
+    output=[]
+    for proyeccion in proyecciones:
+        proyeccion_datos={}
+        if proyeccion.estado == 1:
+            proyeccion_datos['id']=proyeccion.id
+            proyeccion_datos['sala']=proyeccion.sala.nombre
+            proyeccion_datos['pelicula']=proyeccion.pelicula.nombre
+            proyeccion_datos['fechaInicio']=proyeccion.fechaInicio
+            proyeccion_datos['fechaFin']=proyeccion.fechaFin
+            proyeccion_datos['hora']=proyeccion.horaProyeccion
+            output.append(proyeccion_datos)
+
+    return JsonResponse({'proyecciones':output})
+
+def get_proyeccion_fecha(request,rangoI,rangoF):
+    rangoI=datetime.strptime(rangoI, '%Y-%m-%d')
+    rangoF=datetime.strptime(rangoF, '%Y-%m-%d')
+
+    lista_fechas = [rangoI + timedelta(days=d) for d in range((rangoF - rangoI).days + 1)]
+
+    proyecciones=Proyeccion.objects.all()
+    output=[]
+    for proyeccion in proyecciones:
+        for lista in lista_fechas:
+            proyeccion_datos={}
+            if lista.date() >= proyeccion.fechaInicio and lista.date() <= proyeccion.fechaFin:
+                proyeccion_datos['sala']=proyeccion.sala.nombre
+                proyeccion_datos['pelicula']=proyeccion.pelicula.nombre
+                proyeccion_datos['fecha']=lista.date()
+                proyeccion_datos['hora']=proyeccion.horaProyeccion
+                output.append(proyeccion_datos)
+
+    return JsonResponse({'proyecciones':output})
