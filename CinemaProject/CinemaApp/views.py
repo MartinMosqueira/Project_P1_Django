@@ -26,7 +26,6 @@ def get(request):
 def get_pelicula(request,nombre):
     peliculas=Peliculas.objects.filter(nombre=nombre)
     output=[]
-    #return render(request,'peliculas.html',{'pelicula':pelicula})
     for pelicula in peliculas:
         pelicula_datos={}
         pelicula_datos['id']=pelicula.id
@@ -132,7 +131,7 @@ def get_proyecciones(request):
 
     return JsonResponse({'proyecciones':output})
 
-def get_proyeccion_fecha(request,rangoI,rangoF):
+def get_proyeccion_fecha_rango(request,rangoI,rangoF):
     rangoI=datetime.strptime(rangoI, '%Y-%m-%d')
     rangoF=datetime.strptime(rangoF, '%Y-%m-%d')
 
@@ -152,3 +151,37 @@ def get_proyeccion_fecha(request,rangoI,rangoF):
                     output.append(proyeccion_datos)
              
     return JsonResponse({'proyecciones':output})
+
+def get_proyeccion_fecha(request,nombre,fecha):
+    fecha=datetime.strptime(fecha, '%Y-%m-%d')
+    proyecciones=Proyeccion.objects.filter(pelicula__nombre__icontains=nombre)
+    butacas=Butacas.objects.filter(proyeccion__in=proyecciones)
+    outputP=[]
+    outputS=[]
+    outputB=[]
+    for proyeccion in proyecciones:
+        if proyeccion.estado == 1:
+            proyeccion_datos={}
+            sala_datos={}
+            if fecha.date() >= proyeccion.fechaInicio and fecha.date() <= proyeccion.fechaFin:
+                    sala_datos['nombre']=proyeccion.sala.nombre
+                    sala_datos['estado']=proyeccion.sala.estado
+                    sala_datos['filas']=proyeccion.sala.filas
+                    sala_datos['asientos']=proyeccion.sala.asientos
+                    proyeccion_datos['pelicula']=proyeccion.pelicula.nombre
+                    proyeccion_datos['fecha']=fecha
+                    proyeccion_datos['hora']=proyeccion.horaProyeccion
+                    outputS.append(sala_datos)
+                    outputP.append(proyeccion_datos)
+    
+    for butaca in butacas:
+        butaca_datos={}
+        butaca_datos['fecha']=butaca.fecha
+        butaca_datos['fila']=butaca.fila
+        butaca_datos['asiento']=butaca.asiento
+        butaca_datos['estado']=butaca.estado
+        outputB.append(butaca_datos)
+
+
+    return JsonResponse({'sala':outputS,'proyeccion':outputP,'butacas':outputB})
+    

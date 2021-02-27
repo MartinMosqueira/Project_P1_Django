@@ -26,5 +26,6 @@ urlpatterns = [
     path('salas/',views.sala_metodos_GP),
     path('salas/<int:sala_id>',views.sala_metodos_PD),
     path('proyeccion/',views.get_proyecciones),
-    path('proyeccion/<str:rangoI>/<str:rangoF>',views.get_proyeccion_fecha),
+    path('proyeccion/fecha/<str:rangoI>/<str:rangoF>',views.get_proyeccion_fecha_rango),
+    path('proyeccion/pelicula/<str:nombre>/<str:fecha>',views.get_proyeccion_fecha)
 ]

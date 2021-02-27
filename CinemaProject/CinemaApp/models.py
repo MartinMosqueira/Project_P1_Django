@@ -5,6 +5,7 @@ from django.core.validators import MinValueValidator
 
 seleccion_estado=[(1,'activo'),(2,'no activo')]
 seleccion_estado_salas=[(1,'habilitada'),(2,'deshabilitada'),(3,'eliminada')]
+seleccion_estado_butacas=[(1,'libre'),(2,'reservado')]
 
 class Peliculas(models.Model):
     nombre=models.CharField(max_length=50)
@@ -36,3 +37,10 @@ class Butacas(models.Model):
     fecha=models.DateField()
     fila=models.IntegerField(validators=[MinValueValidator(1)])
     asiento=models.IntegerField(validators=[MinValueValidator(1)])
+    estado=models.IntegerField(null=False,blank=False,choices=seleccion_estado_butacas,default=1)
+
+    class Meta:
+        db_table = 'app_butacas'
+        constraints = [
+            models.UniqueConstraint(fields=['proyeccion', 'fila', 'asiento'], name='unique_butacas')
+        ]
