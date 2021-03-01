@@ -3,7 +3,7 @@ from CinemaApp.models import Peliculas, Salas, Proyeccion, Butacas
 from django.http import JsonResponse
 from datetime import datetime, timedelta
 from rest_framework.decorators import api_view
-from .serializers import SalasSerializer
+from .serializers import SalasSerializer, ProyeccionesSerializer
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -115,22 +115,6 @@ def sala_metodos_PD(request,sala_id):
 
 #ENDPOINTS PROYECCION
 
-def get_proyecciones(request):
-    proyecciones=Proyeccion.objects.all()
-    output=[]
-    for proyeccion in proyecciones:
-        proyeccion_datos={}
-        if proyeccion.estado == 1:
-            proyeccion_datos['id']=proyeccion.id
-            proyeccion_datos['sala']=proyeccion.sala.nombre
-            proyeccion_datos['pelicula']=proyeccion.pelicula.nombre
-            proyeccion_datos['fechaInicio']=proyeccion.fechaInicio
-            proyeccion_datos['fechaFin']=proyeccion.fechaFin
-            proyeccion_datos['hora']=proyeccion.horaProyeccion
-            output.append(proyeccion_datos)
-
-    return JsonResponse({'proyecciones':output})
-
 def get_proyeccion_fecha_rango(request,rangoI,rangoF):
     rangoI=datetime.strptime(rangoI, '%Y-%m-%d')
     rangoF=datetime.strptime(rangoF, '%Y-%m-%d')
@@ -184,4 +168,32 @@ def get_proyeccion_fecha(request,nombre,fecha):
 
 
     return JsonResponse({'sala':outputS,'proyeccion':outputP,'butacas':outputB})
-    
+
+@api_view(['GET','POST',])
+def proyeccion_metodos_GP(request):
+    if request.method == 'GET':
+        proyecciones=Proyeccion.objects.all()
+        serializer = ProyeccionesSerializer(proyecciones, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer=ProyeccionesSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT',])
+def proyeccion_metodo_P(request, proyeccion_id):
+    try:
+        proyeccion = Proyeccion.objects.get(id=proyeccion_id)
+    except Proyeccion.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'PUT':
+        serializer = ProyeccionesSerializer(proyeccion, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
