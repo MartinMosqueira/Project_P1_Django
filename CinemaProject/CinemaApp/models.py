@@ -42,5 +42,5 @@ class Butacas(models.Model):
     class Meta:
         db_table = 'app_butacas'
         constraints = [
-            models.UniqueConstraint(fields=['proyeccion', 'fila', 'asiento'], name='unique_butacas')
+            models.UniqueConstraint(fields=['proyeccion','fecha' , 'fila', 'asiento'], name='unique_butacas')
         ]

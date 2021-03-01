@@ -197,3 +197,26 @@ def proyeccion_metodo_P(request, proyeccion_id):
             return Response(serializer.data)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#ENDPOINTS BUTACAS
+
+def get_butaca(request,proyeccion,fecha,fila,asiento):
+    butacas=Butacas.objects.filter(proyeccion__pelicula__nombre__icontains=proyeccion,fecha=fecha,fila=fila,asiento=asiento)
+    outputB=[]
+    outputP=[]
+    for butaca in butacas:
+        butaca_datos={}
+        proyeccion_datos={}
+        butaca_datos['id']=butaca.id
+        proyeccion_datos['pelicula']=butaca.proyeccion.pelicula.nombre
+        proyeccion_datos['sala']=butaca.proyeccion.sala.nombre
+        proyeccion_datos['fechaInicio']=butaca.proyeccion.fechaInicio
+        proyeccion_datos['fechaFin']=butaca.proyeccion.fechaFin
+        butaca_datos['fecha']=butaca.fecha
+        butaca_datos['fila']=butaca.fila
+        butaca_datos['asiento']=butaca.asiento
+        butaca_datos['estado']=butaca.estado
+        outputB.append(butaca_datos)
+        outputP.append(proyeccion_datos)
+
+    return JsonResponse({"butaca":outputB,"proyeccion":outputP})
