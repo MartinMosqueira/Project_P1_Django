@@ -3,7 +3,7 @@ from CinemaApp.models import Peliculas, Salas, Proyeccion, Butacas
 from django.http import JsonResponse
 from datetime import datetime, timedelta
 from rest_framework.decorators import api_view
-from .serializers import SalasSerializer, ProyeccionesSerializer
+from .serializers import SalasSerializer, ProyeccionesSerializer,ButacasSerializer
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -135,7 +135,8 @@ def get_proyeccion_fecha_rango(request,rangoI,rangoF):
                     output.append(proyeccion_datos)
              
     return JsonResponse({'proyecciones':output})
-
+    
+#
 def get_proyeccion_fecha(request,nombre,fecha):
     fecha=datetime.strptime(fecha, '%Y-%m-%d')
     proyecciones=Proyeccion.objects.filter(pelicula__nombre__icontains=nombre)
@@ -220,3 +221,33 @@ def get_butaca(request,proyeccion,fecha,fila,asiento):
         outputP.append(proyeccion_datos)
 
     return JsonResponse({"butaca":outputB,"proyeccion":outputP})
+    
+#
+@api_view(['GET','POST',])
+def butaca_metodos_GP(request):
+    if request.method == 'GET':
+        butacas=Butacas.objects.all()
+        serializer = ButacasSerializer(butacas, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer=ButacasSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT',])
+def butaca_metodo_P(request,butaca_id):
+    try:
+        butaca = Butacas.objects.get(id=butaca_id)
+    except Butacas.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'PUT':
+        serializer = ButacasSerializer(butaca, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

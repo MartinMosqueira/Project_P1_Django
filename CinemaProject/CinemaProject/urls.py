@@ -29,5 +29,7 @@ urlpatterns = [
     path('proyeccion/pelicula/<str:nombre>/<str:fecha>',views.get_proyeccion_fecha),
     path('proyeccion/',views.proyeccion_metodos_GP),
     path('proyeccion/<str:proyeccion_id>',views.proyeccion_metodo_P),
-    path('butaca/<str:proyeccion>/<str:fecha>/<int:fila>/<int:asiento>',views.get_butaca)
+    path('butaca/<str:proyeccion>/<str:fecha>/<int:fila>/<int:asiento>',views.get_butaca),
+    path('butaca/',views.butaca_metodos_GP),
+    path('butaca/<int:butaca_id>',views.butaca_metodo_P)
 ]
