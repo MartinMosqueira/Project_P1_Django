@@ -19,17 +19,23 @@ from CinemaApp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    #Rutas Pelicula
     path('pelicula/',views.get),
     path('pelicula/<str:nombre>/',views.get_pelicula),
     path('pelicula/<str:nombre>/<str:rangoI>/<str:rangoF>',views.get_pelicula_fecha),
+    #Rutas Sala
     path('sala/<str:nombre>',views.get_sala_nombre),
     path('salas/',views.sala_metodos_GP),
     path('salas/<int:sala_id>',views.sala_metodos_PD),
+    #Rutas Proyeccion
     path('proyeccion/fecha/<str:rangoI>/<str:rangoF>',views.get_proyeccion_fecha_rango),
     path('proyeccion/pelicula/<str:nombre>/<str:fecha>',views.get_proyeccion_fecha),
     path('proyeccion/',views.proyeccion_metodos_GP),
     path('proyeccion/<str:proyeccion_id>',views.proyeccion_metodo_P),
+    #Rutas Butaca
     path('butaca/<str:proyeccion>/<str:fecha>/<int:fila>/<int:asiento>',views.get_butaca),
     path('butaca/',views.butaca_metodos_GP),
-    path('butaca/<int:butaca_id>',views.butaca_metodo_P)
+    path('butaca/<int:butaca_id>',views.butaca_metodo_P),
+    #Rutas Reportes
+    path('tiempo/',views.butacas_tiempo)
 ]

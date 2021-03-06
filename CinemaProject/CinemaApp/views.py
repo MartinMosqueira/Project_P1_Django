@@ -6,6 +6,8 @@ from rest_framework.decorators import api_view
 from .serializers import SalasSerializer, ProyeccionesSerializer,ButacasSerializer
 from rest_framework.response import Response
 from rest_framework import status
+from datetime import date
+from dateutil.relativedelta import * 
 
 # Create your views here.
 
@@ -251,3 +253,22 @@ def butaca_metodo_P(request,butaca_id):
             return Response(serializer.data)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#ENDPOINTS REPORTES
+
+def butacas_tiempo(request):
+    today = date.today()
+    new_date = today - relativedelta(month=2)
+    ventas=Butacas.objects.filter(fecha__range=[new_date,today])
+    output=[]
+    for venta in ventas:
+        venta_datos={}
+        venta_datos['id']=venta.id
+        venta_datos['proyeccion']=venta.proyeccion.id
+        venta_datos['fecha']=venta.fecha
+        venta_datos['fila']=venta.fila
+        venta_datos['asiento']=venta.asiento
+        venta_datos['estado']=venta.estado
+        output.append(venta_datos)
+
+    return JsonResponse({'butacas':output})
