@@ -14,7 +14,9 @@ from dateutil.relativedelta import *
 #ENDPOINTS PELICULAS
 
 def get(request):
-    peliculas=Peliculas.objects.raw("SELECT * FROM cinemaapp_peliculas WHERE fechaComienzo BETWEEN '2020-01-01' AND '2021-01-01'")
+    today = date.today()
+    new_date = today - relativedelta(years=1)
+    peliculas=Peliculas.objects.filter(fechaComienzo__range=[new_date,today])
     output=[]
     for pelicula in peliculas:
         pelicula_datos={}
@@ -263,12 +265,63 @@ def butacas_tiempo(request):
     output=[]
     for venta in ventas:
         venta_datos={}
-        venta_datos['id']=venta.id
-        venta_datos['proyeccion']=venta.proyeccion.id
-        venta_datos['fecha']=venta.fecha
-        venta_datos['fila']=venta.fila
-        venta_datos['asiento']=venta.asiento
-        venta_datos['estado']=venta.estado
-        output.append(venta_datos)
+        if venta.estado == 2:
+            venta_datos['id']=venta.id
+            venta_datos['proyeccion']=venta.proyeccion.id
+            venta_datos['fecha']=venta.fecha
+            venta_datos['fila']=venta.fila
+            venta_datos['asiento']=venta.asiento
+            venta_datos['estado']=venta.estado
+            output.append(venta_datos)
 
-    return JsonResponse({'butacas':output})
+    return JsonResponse({'ventas':output})
+
+def butaca_tiempo_proyeccion(request,proyeccion_id):
+    proyecciones=Proyeccion.objects.filter(id=proyeccion_id)
+    today=proyecciones.values('fechaFin').first()
+    today=today['fechaFin']
+    new_date = today - relativedelta(days=7)
+    butacas=Butacas.objects.filter(proyeccion__in=proyecciones,fecha__range=[new_date,today])
+
+    output=[]
+    outputB=[]
+    for proyeccion in proyecciones:
+        proyeccion_datos={}
+        proyeccion_datos['id']=proyeccion.id
+        proyeccion_datos['pelicula']=proyeccion.pelicula.nombre
+        proyeccion_datos['sala']=proyeccion.sala.nombre
+        output.append(proyeccion_datos)
+
+    for butaca in butacas:
+        butaca_datos={}
+        if butaca.estado == 2:
+            butaca_datos['fecha']=butaca.fecha
+            butaca_datos['fila']=butaca.fila
+            butaca_datos['asiento']=butaca.asiento
+            butaca_datos['estado']=butaca.estado
+            outputB.append(butaca_datos)
+
+    return JsonResponse({'proyecciones':output,'ventas':outputB})
+
+def butacas_tiempo_peliculas(request):
+    peliculas=Peliculas.objects.all()
+    butacas=Butacas.objects.filter(proyeccion__pelicula__in=peliculas)
+    output=[]
+    outputB=[]
+    for pelicula in peliculas:
+        pelicula_datos={}
+        if pelicula.estado == 1:
+            pelicula_datos['nombre']=pelicula.nombre
+            output.append(pelicula_datos)
+    
+    for butaca in butacas:
+        butaca_datos={}
+        if butaca.estado == 2:
+            butaca_datos['pelicula']=butaca.proyeccion.pelicula.nombre
+            butaca_datos['fecha']=butaca.fecha
+            butaca_datos['fila']=butaca.fila
+            butaca_datos['asiento']=butaca.asiento
+            butaca_datos['estado']=butaca.estado
+            outputB.append(butaca_datos)
+
+    return JsonResponse({'peliculas':output,'ventas':outputB})

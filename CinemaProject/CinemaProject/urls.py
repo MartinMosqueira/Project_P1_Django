@@ -37,5 +37,7 @@ urlpatterns = [
     path('butaca/',views.butaca_metodos_GP),
     path('butaca/<int:butaca_id>',views.butaca_metodo_P),
     #Rutas Reportes
-    path('tiempo/',views.butacas_tiempo)
+    path('tiempo/',views.butacas_tiempo),
+    path('tiempo/<int:proyeccion_id>',views.butaca_tiempo_proyeccion),
+    path('tiempo/peliculas',views.butacas_tiempo_peliculas)
 ]
