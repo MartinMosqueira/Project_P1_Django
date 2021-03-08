@@ -65,6 +65,9 @@ def get_pelicula_fecha(request,nombre,rangoI,rangoF):
                     proyeccion_datos['hora']=proyeccion.horaProyeccion
                     output.append(proyeccion_datos)
 
+        if proyeccion.estado == 2:
+            return JsonResponse({'ERROR':'no hay proyecciones activas para esta pelicula'})
+
     return JsonResponse({'proyecciones':output})
 
 #ENDPOINTS SALAS
@@ -142,7 +145,6 @@ def get_proyeccion_fecha_rango(request,rangoI,rangoF):
              
     return JsonResponse({'proyecciones':output})
     
-#
 def get_proyeccion_fecha(request,nombre,fecha):
     fecha=datetime.strptime(fecha, '%Y-%m-%d')
     proyecciones=Proyeccion.objects.filter(pelicula__nombre__icontains=nombre)
@@ -228,7 +230,6 @@ def get_butaca(request,proyeccion,fecha,fila,asiento):
 
     return JsonResponse({"butaca":outputB,"proyeccion":outputP})
     
-#
 @api_view(['GET','POST',])
 def butaca_metodos_GP(request):
     if request.method == 'GET':
