@@ -25,7 +25,7 @@ class Salas(models.Model):
     asientos=models.IntegerField(validators=[MinValueValidator(1)])
 
 class Proyeccion(models.Model):
-    sala=models.OneToOneField(Salas, null=False, blank=False, on_delete=models.CASCADE)
+    sala=models.ForeignKey(Salas, null=False, blank=False, on_delete=models.CASCADE)
     pelicula=models.ForeignKey(Peliculas, null=False, blank=False, on_delete=models.CASCADE)
     fechaInicio=models.DateField()
     fechaFin=models.DateField()

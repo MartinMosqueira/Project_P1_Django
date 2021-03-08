@@ -39,5 +39,6 @@ urlpatterns = [
     #Rutas Reportes
     path('tiempo/',views.butacas_tiempo),
     path('tiempo/<int:proyeccion_id>',views.butaca_tiempo_proyeccion),
+    path('tiempo/peliculas/ranking',views.butacas_tiempo_peliculas_ranking),
     path('tiempo/peliculas',views.butacas_tiempo_peliculas)
 ]

@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from datetime import date
 from dateutil.relativedelta import * 
+from collections import Counter
+from itertools import islice
 
 # Create your views here.
 
@@ -325,3 +327,27 @@ def butacas_tiempo_peliculas(request):
             outputB.append(butaca_datos)
 
     return JsonResponse({'peliculas':output,'ventas':outputB})
+
+def butacas_tiempo_peliculas_ranking(request):
+    today = date.today()
+    new_date = today - relativedelta(years=1)
+    butacas=Butacas.objects.filter(fecha__range=[new_date,today])
+    list_proyecciones=[]
+    output=[]
+
+    for butaca in butacas:
+        list_proyecciones.append(butaca.proyeccion.id)
+    dict_proyecciones=dict(Counter(list_proyecciones).most_common(len(list_proyecciones)))
+    
+    for numero_id in islice(dict_proyecciones,0,5):
+        proyecciones=Proyeccion.objects.filter(id=numero_id)
+        for proyeccion in proyecciones:
+            proyeccion_datos={}
+            proyeccion_datos['nombre']=proyeccion.pelicula.nombre
+            proyeccion_datos['fechaInicio']=proyeccion.fechaInicio
+            proyeccion_datos['fechaFin']=proyeccion.fechaFin
+            proyeccion_datos['sala']=proyeccion.sala.nombre
+            proyeccion_datos['ventas']=dict_proyecciones[numero_id]
+            output.append(proyeccion_datos)
+
+    return JsonResponse({'proyecciones':output})
