@@ -5,7 +5,7 @@ from django.core.validators import MinValueValidator
 
 seleccion_estado=[(1,'activo'),(2,'no activo')]
 seleccion_estado_salas=[(1,'habilitada'),(2,'deshabilitada'),(3,'eliminada')]
-seleccion_estado_butacas=[(1,'libre'),(2,'reservado')]
+seleccion_estado_butacas=[(1,'libre'),(2,'reservado'),(3,'vendida')]
 
 class Peliculas(models.Model):
     nombre=models.CharField(max_length=50)

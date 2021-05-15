@@ -220,19 +220,20 @@ def get_butaca(request,proyeccion,fecha,fila,asiento):
     outputB=[]
     outputP=[]
     for butaca in butacas:
-        butaca_datos={}
-        proyeccion_datos={}
-        butaca_datos['id']=butaca.id
-        proyeccion_datos['pelicula']=butaca.proyeccion.pelicula.nombre
-        proyeccion_datos['sala']=butaca.proyeccion.sala.nombre
-        proyeccion_datos['fechaInicio']=butaca.proyeccion.fechaInicio
-        proyeccion_datos['fechaFin']=butaca.proyeccion.fechaFin
-        butaca_datos['fecha']=butaca.fecha
-        butaca_datos['fila']=butaca.fila
-        butaca_datos['asiento']=butaca.asiento
-        butaca_datos['estado']=butaca.estado
-        outputB.append(butaca_datos)
-        outputP.append(proyeccion_datos)
+        if butaca.estado == 2 or butaca.estado == 3:
+            butaca_datos={}
+            proyeccion_datos={}
+            butaca_datos['id']=butaca.id
+            proyeccion_datos['pelicula']=butaca.proyeccion.pelicula.nombre
+            proyeccion_datos['sala']=butaca.proyeccion.sala.nombre
+            proyeccion_datos['fechaInicio']=butaca.proyeccion.fechaInicio
+            proyeccion_datos['fechaFin']=butaca.proyeccion.fechaFin
+            butaca_datos['fecha']=butaca.fecha
+            butaca_datos['fila']=butaca.fila
+            butaca_datos['asiento']=butaca.asiento
+            butaca_datos['estado']=butaca.estado
+            outputB.append(butaca_datos)
+            outputP.append(proyeccion_datos)
 
     return JsonResponse({"butaca":outputB,"proyeccion":outputP})
     
@@ -274,7 +275,7 @@ def butacas_tiempo(request):
     output=[]
     for venta in ventas:
         venta_datos={}
-        if venta.estado == 2:
+        if venta.estado == 3:
             venta_datos['id']=venta.id
             venta_datos['proyeccion']=venta.proyeccion.id
             venta_datos['fecha']=venta.fecha
@@ -303,7 +304,7 @@ def butaca_tiempo_proyeccion(request,proyeccion_id):
 
     for butaca in butacas:
         butaca_datos={}
-        if butaca.estado == 2:
+        if butaca.estado == 3:
             butaca_datos['fecha']=butaca.fecha
             butaca_datos['fila']=butaca.fila
             butaca_datos['asiento']=butaca.asiento
@@ -313,28 +314,23 @@ def butaca_tiempo_proyeccion(request,proyeccion_id):
     return JsonResponse({'proyecciones':output,'ventas':outputB})
 
 def butacas_tiempo_peliculas(request):
-    peliculas=Peliculas.objects.all()
+    peliculas=Peliculas.objects.filter(estado=1)
     butacas=Butacas.objects.filter(proyeccion__pelicula__in=peliculas)
     output=[]
-    outputB=[]
-    for pelicula in peliculas:
-        pelicula_datos={}
-        if pelicula.estado == 1:
-            pelicula_datos['nombre']=pelicula.nombre
-            output.append(pelicula_datos)
     
     for butaca in butacas:
         butaca_datos={}
-        if butaca.estado == 2:
+        if butaca.estado == 3:
             butaca_datos['pelicula']=butaca.proyeccion.pelicula.nombre
             butaca_datos['fecha']=butaca.fecha
             butaca_datos['fila']=butaca.fila
             butaca_datos['asiento']=butaca.asiento
             butaca_datos['estado']=butaca.estado
-            outputB.append(butaca_datos)
+            output.append(butaca_datos)
 
-    return JsonResponse({'peliculas':output,'ventas':outputB})
+    return JsonResponse({'ventas':output})
 
+#TODO:faltaria ver
 def butacas_tiempo_peliculas_ranking(request):
     today = date.today()
     new_date = today - relativedelta(years=1)
