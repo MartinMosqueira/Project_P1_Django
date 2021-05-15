@@ -61,6 +61,7 @@ def get_pelicula_fecha(request,nombre,rangoI,rangoF):
             for lista in lista_fechas:
                 proyeccion_datos={}
                 if lista.date() >= proyeccion.fechaInicio and lista.date() <= proyeccion.fechaFin:
+                    proyeccion_datos['sala']=proyeccion.sala.nombre
                     proyeccion_datos['fecha']=lista.date()
                     proyeccion_datos['hora']=proyeccion.horaProyeccion
                     output.append(proyeccion_datos)
@@ -144,7 +145,8 @@ def get_proyeccion_fecha_rango(request,rangoI,rangoF):
                     output.append(proyeccion_datos)
              
     return JsonResponse({'proyecciones':output})
-    
+
+#corregir    
 def get_proyeccion_fecha(request,nombre,fecha):
     fecha=datetime.strptime(fecha, '%Y-%m-%d')
     proyecciones=Proyeccion.objects.filter(pelicula__nombre__icontains=nombre)
@@ -166,14 +168,18 @@ def get_proyeccion_fecha(request,nombre,fecha):
                     proyeccion_datos['hora']=proyeccion.horaProyeccion
                     outputS.append(sala_datos)
                     outputP.append(proyeccion_datos)
-    
-    for butaca in butacas:
-        butaca_datos={}
-        butaca_datos['fecha']=butaca.fecha
-        butaca_datos['fila']=butaca.fila
-        butaca_datos['asiento']=butaca.asiento
-        butaca_datos['estado']=butaca.estado
-        outputB.append(butaca_datos)
+
+#TODO:filtarar las butacas correctas por la fecha de la proyeccion    
+    if proyeccion.estado == 1:
+        for butaca in butacas:
+            if butaca.fecha >= proyeccion.fechaInicio and butaca.fecha <= proyeccion.fechaFin:
+                butaca_datos={}
+                butaca_datos['proyeccion']=butaca.proyeccion.id
+                butaca_datos['fecha']=butaca.fecha
+                butaca_datos['fila']=butaca.fila
+                butaca_datos['asiento']=butaca.asiento
+                butaca_datos['estado']=butaca.estado
+                outputB.append(butaca_datos)
 
 
     return JsonResponse({'sala':outputS,'proyeccion':outputP,'butacas':outputB})
@@ -181,7 +187,7 @@ def get_proyeccion_fecha(request,nombre,fecha):
 @api_view(['GET','POST',])
 def proyeccion_metodos_GP(request):
     if request.method == 'GET':
-        proyecciones=Proyeccion.objects.all()
+        proyecciones=Proyeccion.objects.filter(estado=1)
         serializer = ProyeccionesSerializer(proyecciones, many=True)
         return Response(serializer.data)
 
@@ -233,7 +239,7 @@ def get_butaca(request,proyeccion,fecha,fila,asiento):
 @api_view(['GET','POST',])
 def butaca_metodos_GP(request):
     if request.method == 'GET':
-        butacas=Butacas.objects.all()
+        butacas=Butacas.objects.filter(estado=2)
         serializer = ButacasSerializer(butacas, many=True)
         return Response(serializer.data)
 
