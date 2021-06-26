@@ -69,6 +69,9 @@ def get_pelicula_fecha(request,nombre,rangoI,rangoF):
         if proyeccion.estado == 2:
             return JsonResponse({'ERROR':'no hay proyecciones activas para esta pelicula'})
 
+    if len(output) == 0:
+        return JsonResponse({'ERROR':'no hay proyecciones para esta pelicula'})
+
     return JsonResponse({'proyecciones':output})
 
 #ENDPOINTS SALAS
@@ -143,10 +146,11 @@ def get_proyeccion_fecha_rango(request,rangoI,rangoF):
                     proyeccion_datos['fecha']=lista.date()
                     proyeccion_datos['hora']=proyeccion.horaProyeccion
                     output.append(proyeccion_datos)
-             
-    return JsonResponse({'proyecciones':output})
+    if len(output) == 0:
+        return JsonResponse({'ERROR':'no hay proyecciones en ese rango de fecha'})
 
-#corregir    
+    return JsonResponse({'proyecciones':output})
+    
 def get_proyeccion_fecha(request,nombre,fecha):
     fecha=datetime.strptime(fecha, '%Y-%m-%d')
     proyecciones=Proyeccion.objects.filter(pelicula__nombre__icontains=nombre)
@@ -168,18 +172,22 @@ def get_proyeccion_fecha(request,nombre,fecha):
                     proyeccion_datos['hora']=proyeccion.horaProyeccion
                     outputS.append(sala_datos)
                     outputP.append(proyeccion_datos)
+                    inicio=proyeccion.fechaInicio
+                    fin=proyeccion.fechaFin
 
-#TODO:filtarar las butacas correctas por la fecha de la proyeccion    
-    if proyeccion.estado == 1:
-        for butaca in butacas:
-            if butaca.fecha >= proyeccion.fechaInicio and butaca.fecha <= proyeccion.fechaFin:
-                butaca_datos={}
-                butaca_datos['proyeccion']=butaca.proyeccion.id
-                butaca_datos['fecha']=butaca.fecha
-                butaca_datos['fila']=butaca.fila
-                butaca_datos['asiento']=butaca.asiento
-                butaca_datos['estado']=butaca.estado
-                outputB.append(butaca_datos)
+    if len(outputP) != 0:    
+        if proyeccion.estado == 1:
+            for butaca in butacas:
+                if butaca.fecha >= inicio and butaca.fecha <= fin:
+                    butaca_datos={}
+                    butaca_datos['proyeccion']=butaca.proyeccion.id
+                    butaca_datos['fecha']=butaca.fecha
+                    butaca_datos['fila']=butaca.fila
+                    butaca_datos['asiento']=butaca.asiento
+                    butaca_datos['estado']=butaca.estado
+                    outputB.append(butaca_datos)
+    else:
+        return JsonResponse({'ERROR':'no se encuentra una proyeccion en esa fecha'})
 
 
     return JsonResponse({'sala':outputS,'proyeccion':outputP,'butacas':outputB})
@@ -234,6 +242,9 @@ def get_butaca(request,proyeccion,fecha,fila,asiento):
             butaca_datos['estado']=butaca.estado
             outputB.append(butaca_datos)
             outputP.append(proyeccion_datos)
+
+        elif butaca.estado ==1 :
+            return JsonResponse({'STATUS':'la butaca se encuentra libre'})
 
     return JsonResponse({"butaca":outputB,"proyeccion":outputP})
     
@@ -316,21 +327,22 @@ def butaca_tiempo_proyeccion(request,proyeccion_id):
 def butacas_tiempo_peliculas(request):
     peliculas=Peliculas.objects.filter(estado=1)
     butacas=Butacas.objects.filter(proyeccion__pelicula__in=peliculas)
-    output=[]
-    
+    outputP=[]
+    lista_peliculas=[]
+
     for butaca in butacas:
-        butaca_datos={}
         if butaca.estado == 3:
-            butaca_datos['pelicula']=butaca.proyeccion.pelicula.nombre
-            butaca_datos['fecha']=butaca.fecha
-            butaca_datos['fila']=butaca.fila
-            butaca_datos['asiento']=butaca.asiento
-            butaca_datos['estado']=butaca.estado
-            output.append(butaca_datos)
+            lista_peliculas.append(butaca.proyeccion.pelicula.nombre)
+    
+    for pelicula in peliculas:
+        pelicula_datos={}
+        veces=lista_peliculas.count(pelicula.nombre)
+        pelicula_datos['pelicula']=pelicula.nombre
+        pelicula_datos['ventas']=veces
+        outputP.append(pelicula_datos)
+    
+    return JsonResponse({'ventas':outputP})
 
-    return JsonResponse({'ventas':output})
-
-#TODO:faltaria ver
 def butacas_tiempo_peliculas_ranking(request):
     today = date.today()
     new_date = today - relativedelta(years=1)
