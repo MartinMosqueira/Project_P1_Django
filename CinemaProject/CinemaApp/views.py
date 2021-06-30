@@ -281,7 +281,7 @@ def butaca_metodo_P(request,butaca_id):
 
 def butacas_tiempo(request):
     today = date.today()
-    new_date = today - relativedelta(month=2)
+    new_date = today - relativedelta(month=1)
     ventas=Butacas.objects.filter(fecha__range=[new_date,today])
     output=[]
     for venta in ventas:
